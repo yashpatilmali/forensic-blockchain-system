@@ -1,0 +1,14 @@
+node_modules/
+
+.env
+.env.local
+.env.development
+.env.production
+
+uploads/
+
+dist/
+coverage/
+
+blockchain/artifacts/
+blockchain/cache/
