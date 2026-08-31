@@ -1,13 +1,27 @@
 import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import api from "../services/api";
+import "../App.css";
 
 function VerifyReport() {
 
-    const [reportId, setReportId] = useState("");
-    const [file, setFile] = useState(null);
+    const [searchParams] = useSearchParams();
 
-    const [loading, setLoading] = useState(false);
-    const [result, setResult] = useState(null);
+    // Get Report ID from URL if available
+    const initialReportId =
+        searchParams.get("reportId") || "";
+
+    const [reportId, setReportId] =
+        useState(initialReportId);
+
+    const [file, setFile] =
+        useState(null);
+
+    const [loading, setLoading] =
+        useState(false);
+
+    const [result, setResult] =
+        useState(null);
 
 
     const handleVerify = async (e) => {
@@ -17,7 +31,6 @@ function VerifyReport() {
         setResult(null);
 
 
-        // Check Report ID
         if (!reportId.trim()) {
 
             alert("Please enter Report ID");
@@ -26,10 +39,9 @@ function VerifyReport() {
         }
 
 
-        // Check PDF
         if (!file) {
 
-            alert("Please select the original PDF file");
+            alert("Please select forensic PDF");
 
             return;
         }
@@ -43,13 +55,14 @@ function VerifyReport() {
         }
 
 
-        // Create FormData
         const formData = new FormData();
+
 
         formData.append(
             "reportId",
-            reportId
+            reportId.trim()
         );
+
 
         formData.append(
             "report",
@@ -63,8 +76,13 @@ function VerifyReport() {
 
 
             console.log(
-                "Verifying report:",
+                "Verifying Report ID:",
                 reportId
+            );
+
+            console.log(
+                "Selected PDF:",
+                file.name
             );
 
 
@@ -81,15 +99,18 @@ function VerifyReport() {
             );
 
 
-            setResult(response.data);
+            setResult(
+                response.data
+            );
 
 
         } catch (error) {
 
             console.error(
-                "VERIFICATION ERROR:",
+                "VERIFY ERROR:",
                 error
             );
+
 
             console.error(
                 "BACKEND RESPONSE:",
@@ -99,7 +120,7 @@ function VerifyReport() {
 
             alert(
                 error.response?.data?.message ||
-                "Verification failed"
+                "Failed to verify report"
             );
 
 
@@ -112,176 +133,385 @@ function VerifyReport() {
 
     return (
 
-        <div className="verify-container">
-
-            <h1>
-                Verify Forensic Report
-            </h1>
+        <div className="app-layout">
 
 
-            <p>
-                Upload the forensic PDF to verify
-                its authenticity and integrity.
-            </p>
+            {/* =========================
+                SIDEBAR
+            ========================= */}
+
+            <aside className="sidebar">
 
 
-            <form onSubmit={handleVerify}>
+                <div className="brand">
 
-                {/* REPORT ID */}
+                    <div className="brand-icon">
+                        ◈
+                    </div>
 
-                <div>
-
-                    <label>
-                        Report ID
-                    </label>
-
-                    <br />
-
-                    <input
-                        type="text"
-                        placeholder="Enter Report ID"
-                        value={reportId}
-                        onChange={(e) =>
-                            setReportId(
-                                e.target.value
-                            )
-                        }
-                        required
-                    />
+                    <div className="brand-name">
+                        FORENSIC<span>CHAIN</span>
+                    </div>
 
                 </div>
 
 
-                <br />
+                <nav className="nav">
 
 
-                {/* PDF */}
+                    <Link
+                        to="/dashboard"
+                        className="nav-link"
+                    >
+                        ◫ <span>Dashboard</span>
+                    </Link>
 
-                <div>
 
-                    <label>
-                        Select Forensic PDF
-                    </label>
+                    <Link
+                        to="/reports"
+                        className="nav-link"
+                    >
+                        ▤ <span>Reports</span>
+                    </Link>
 
-                    <br />
 
-                    <input
-                        type="file"
-                        accept=".pdf,application/pdf"
-                        onChange={(e) =>
-                            setFile(
-                                e.target.files[0]
-                            )
-                        }
-                        required
-                    />
+                    <Link
+                        to="/upload"
+                        className="nav-link"
+                    >
+                        ↑ <span>Upload Report</span>
+                    </Link>
+
+
+                    <Link
+                        to="/verify"
+                        className="nav-link active"
+                    >
+                        ✓ <span>Verify Report</span>
+                    </Link>
+
+
+                </nav>
+
+
+                <div className="sidebar-bottom">
+
+                    <button
+                        className="logout-btn"
+                        onClick={() => {
+
+                            localStorage.removeItem(
+                                "token"
+                            );
+
+                            window.location.href = "/";
+
+                        }}
+                    >
+                        ↪ Logout
+                    </button>
+
+                </div>
+
+
+            </aside>
+
+
+            {/* =========================
+                MAIN CONTENT
+            ========================= */}
+
+            <main className="main-content">
+
+
+                <div className="topbar">
+
+
+                    <div>
+
+                        <h1 className="page-title">
+                            Verify Evidence
+                        </h1>
+
+                        <div className="page-subtitle">
+                            Verify forensic report integrity
+                            against blockchain records.
+                        </div>
+
+                    </div>
+
+
+                    <div className="user-pill">
+
+                        <div className="avatar">
+                            Y
+                        </div>
+
+                        <span>
+                            Authorized User
+                        </span>
+
+                    </div>
+
 
                 </div>
 
 
-                <br />
+                {/* =========================
+                    VERIFY CARD
+                ========================= */}
+
+                <div className="card form-card">
 
 
-                {/* BUTTON */}
+                    <div className="card-header">
 
-                <button
-                    type="submit"
-                    disabled={loading}
-                >
+                        <h2 className="card-title">
+                            Evidence Verification
+                        </h2>
 
-                    {loading
-                        ? "Verifying..."
-                        : "Verify Report"
-                    }
+                        <p className="card-description">
+                            Upload the forensic PDF to
+                            verify its authenticity and
+                            integrity.
+                        </p>
 
-                </button>
-
-            </form>
+                    </div>
 
 
-            {/* VERIFICATION RESULT */}
-
-            {result && (
-
-                <div>
-
-                    <h2>
-                        Verification Result
-                    </h2>
+                    <form
+                        onSubmit={handleVerify}
+                        style={{
+                            paddingTop: "24px"
+                        }}
+                    >
 
 
-                    <p>
+                        {/* REPORT ID */}
 
-                        <strong>
-                            Report ID:
-                        </strong>
+                        <div className="form-group">
 
-                        {" "}
-
-                        {result.reportId}
-
-                    </p>
+                            <label className="form-label">
+                                Report ID
+                            </label>
 
 
-                    <p>
-
-                        <strong>
-                            Uploaded File Hash:
-                        </strong>
-
-                        <br />
-
-                        {result.uploadedFileHash}
-
-                    </p>
-
-
-                    <p>
-
-                        <strong>
-                            Original File Hash:
-                        </strong>
-
-                        <br />
-
-                        {result.originalHash}
-
-                    </p>
+                            <input
+                                className="form-input"
+                                type="text"
+                                placeholder="FR-1788021775904"
+                                value={reportId}
+                                onChange={(e) =>
+                                    setReportId(
+                                        e.target.value
+                                    )
+                                }
+                                required
+                            />
 
 
-                    <p>
-
-                        <strong>
-                            Blockchain Verified:
-                        </strong>
-
-                        {" "}
-
-                        {result.blockchainVerified
-                            ? "YES"
-                            : "NO"
-                        }
-
-                    </p>
+                        </div>
 
 
-                    <h3>
+                        {/* PDF */}
 
-                        Status:
+                        <div className="form-group">
 
-                        {" "}
+                            <label className="form-label">
+                                Forensic PDF
+                            </label>
 
-                        {result.status}
 
-                    </h3>
+                            <input
+                                className="file-input"
+                                type="file"
+                                accept=".pdf,application/pdf"
+                                onChange={(e) =>
+                                    setFile(
+                                        e.target.files[0]
+                                    )
+                                }
+                                required
+                            />
+
+
+                        </div>
+
+
+                        {/* BUTTON */}
+
+                        <button
+                            className="primary-btn"
+                            type="submit"
+                            disabled={loading}
+                        >
+
+                            {loading
+                                ? "Verifying..."
+                                : "Verify Report"
+                            }
+
+                        </button>
+
+
+                    </form>
+
+
+                    {/* =========================
+                        RESULT
+                    ========================= */}
+
+                    {result && (
+
+                        <div
+                            className={`verification-result ${
+                                result.status === "AUTHENTIC"
+                                    ? "result-authentic"
+                                    : "result-tampered"
+                            }`}
+                        >
+
+
+                            {/* STATUS */}
+
+                            <div className="result-status">
+
+                                {result.status === "AUTHENTIC"
+                                    ? "✓ AUTHENTIC"
+                                    : "⚠ TAMPERED"
+                                }
+
+                            </div>
+
+
+                            {/* REPORT ID */}
+
+                            <p>
+                                <strong>
+                                    Report ID
+                                </strong>
+                            </p>
+
+
+                            <div className="hash-box">
+
+                                {result.reportId}
+
+                            </div>
+
+
+                            {/* REPORT NAME */}
+
+                            {result.title && (
+
+                                <>
+
+                                    <p>
+                                        <strong>
+                                            Report Name
+                                        </strong>
+                                    </p>
+
+
+                                    <div className="hash-box">
+
+                                        {result.title}
+
+                                    </div>
+
+                                </>
+
+                            )}
+
+
+                            {/* CASE NUMBER */}
+
+                            {result.caseNumber && (
+
+                                <>
+
+                                    <p>
+                                        <strong>
+                                            Case Number
+                                        </strong>
+                                    </p>
+
+
+                                    <div className="hash-box">
+
+                                        {result.caseNumber}
+
+                                    </div>
+
+                                </>
+
+                            )}
+
+
+                            {/* FILE HASH */}
+
+                            <p>
+                                <strong>
+                                    Uploaded File Hash
+                                </strong>
+                            </p>
+
+
+                            <div className="hash-box">
+
+                                {result.uploadedFileHash}
+
+                            </div>
+
+
+                            {/* ORIGINAL HASH */}
+
+                            <p>
+                                <strong>
+                                    Original File Hash
+                                </strong>
+                            </p>
+
+
+                            <div className="hash-box">
+
+                                {result.originalHash}
+
+                            </div>
+
+
+                            {/* BLOCKCHAIN */}
+
+                            <p>
+
+                                <strong>
+                                    Blockchain Verification:
+                                </strong>
+
+                                {" "}
+
+                                {result.blockchainVerified
+                                    ? "✓ Confirmed"
+                                    : "✕ Failed"
+                                }
+
+                            </p>
+
+
+                        </div>
+
+                    )}
 
 
                 </div>
 
-            )}
+
+            </main>
+
 
         </div>
     );
 }
+
 
 export default VerifyReport;

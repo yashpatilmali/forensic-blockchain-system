@@ -9,6 +9,7 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import UploadReport from "./pages/UploadReport";
 import VerifyReport from "./pages/VerifyReport";
+import Reports from "./pages/Reports";
 
 function App() {
 
@@ -17,6 +18,11 @@ function App() {
         <BrowserRouter>
 
             <Routes>
+
+                <Route
+    path="/reports"
+    element={<Reports />}
+/>
 
                 <Route
                     path="/"

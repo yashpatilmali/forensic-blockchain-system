@@ -1,24 +1,34 @@
 const express = require("express");
 
-const upload =
-    require("../middleware/uploadMiddleware");
+const router = express.Router();
+
+const {
+    createReport,
+    verifyReport,
+    getReports
+} = require("../controllers/reportController");
 
 const protect =
     require("../middleware/authMiddleware");
 
-const {
-    createReport,
-    verifyReport
-} = require("../controllers/reportController");
+const upload =
+    require("../middleware/uploadMiddleware");
 
 
-const router = express.Router();
+// ==========================================
+// GET ALL REPORTS
+// ==========================================
+
+router.get(
+    "/",
+    protect,
+    getReports
+);
 
 
-// ======================================================
-// CREATE / REGISTER REPORT
-// POST /api/reports
-// ======================================================
+// ==========================================
+// CREATE REPORT
+// ==========================================
 
 router.post(
     "/",
@@ -28,10 +38,9 @@ router.post(
 );
 
 
-// ======================================================
+// ==========================================
 // VERIFY REPORT
-// POST /api/reports/verify
-// ======================================================
+// ==========================================
 
 router.post(
     "/verify",

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import api from "../services/api";
+import "../App.css";
 
 function UploadReport() {
 
@@ -10,91 +11,41 @@ function UploadReport() {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
 
-
     const handleSubmit = async (e) => {
 
         e.preventDefault();
 
         setResult(null);
 
-
-        // Validate case number
         if (!caseNumber.trim()) {
-
             alert("Please enter case number");
-
             return;
         }
 
-
-        // Validate title
         if (!title.trim()) {
-
             alert("Please enter report title");
-
             return;
         }
 
-
-        // Validate file
         if (!file) {
-
-            alert("Please select a PDF file");
-
+            alert("Please select a PDF");
             return;
         }
-
 
         if (file.type !== "application/pdf") {
-
             alert("Only PDF files are allowed");
-
             return;
         }
 
-
-        // Create FormData
         const formData = new FormData();
 
-        formData.append(
-            "caseNumber",
-            caseNumber
-        );
-
-        formData.append(
-            "title",
-            title
-        );
-
-        formData.append(
-            "report",
-            file
-        );
-
+        formData.append("caseNumber", caseNumber);
+        formData.append("title", title);
+        formData.append("report", file);
 
         try {
 
             setLoading(true);
-
-            console.log(
-                "Uploading report..."
-            );
-
-            console.log(
-                "Case Number:",
-                caseNumber
-            );
-
-            console.log(
-                "Title:",
-                title
-            );
-
-            console.log(
-                "File:",
-                file.name
-            );
-
 
             const response =
                 await api.post(
@@ -102,26 +53,11 @@ function UploadReport() {
                     formData
                 );
 
-
-            console.log(
-                "Upload response:",
-                response.data
-            );
-
-
             setResult(response.data);
 
-
-            alert(
-                "Forensic report registered successfully!"
-            );
-
-
-            // Clear form
             setCaseNumber("");
             setTitle("");
             setFile(null);
-
 
         } catch (error) {
 
@@ -130,18 +66,10 @@ function UploadReport() {
                 error
             );
 
-
-            console.error(
-                "BACKEND RESPONSE:",
-                error.response?.data
-            );
-
-
             alert(
                 error.response?.data?.message ||
                 "Upload failed"
             );
-
 
         } finally {
 
@@ -149,200 +77,254 @@ function UploadReport() {
         }
     };
 
-
     return (
 
-        <div className="upload-container">
+        <div className="app-layout">
 
-            <h1>
-                Upload Forensic Report
-            </h1>
+            <aside className="sidebar">
 
+                <div className="brand">
 
-            <form onSubmit={handleSubmit}>
+                    <div className="brand-icon">
+                        ◈
+                    </div>
 
-                {/* CASE NUMBER */}
-
-                <div>
-
-                    <label>
-                        Case Number
-                    </label>
-
-                    <br />
-
-                    <input
-                        type="text"
-                        placeholder="Enter case number"
-                        value={caseNumber}
-                        onChange={(e) =>
-                            setCaseNumber(
-                                e.target.value
-                            )
-                        }
-                        required
-                    />
+                    <div className="brand-name">
+                        FORENSIC<span>CHAIN</span>
+                    </div>
 
                 </div>
 
 
-                <br />
+                <nav className="nav">
+
+                    <a
+                        href="/dashboard"
+                        className="nav-link"
+                    >
+                        ◫ <span>Dashboard</span>
+                    </a>
+
+                    <a
+                        href="/upload"
+                        className="nav-link active"
+                    >
+                        ↑ <span>Upload Report</span>
+                    </a>
+
+                    <a
+                        href="/verify"
+                        className="nav-link"
+                    >
+                        ✓ <span>Verify Report</span>
+                    </a>
+
+                </nav>
 
 
-                {/* TITLE */}
+                <div className="sidebar-bottom">
 
-                <div>
+                    <button
+                        className="logout-btn"
+                        onClick={() => {
+                            localStorage.removeItem("token");
+                            window.location.href = "/";
+                        }}
+                    >
+                        ↪ Logout
+                    </button>
 
-                    <label>
-                        Report Title
-                    </label>
+                </div>
 
-                    <br />
+            </aside>
 
-                    <input
-                        type="text"
-                        placeholder="Enter report title"
-                        value={title}
-                        onChange={(e) =>
-                            setTitle(
-                                e.target.value
-                            )
-                        }
-                        required
-                    />
+
+            <main className="main-content">
+
+                <div className="topbar">
+
+                    <div>
+
+                        <h1 className="page-title">
+                            Register Forensic Report
+                        </h1>
+
+                        <div className="page-subtitle">
+                            Secure evidence on the blockchain
+                        </div>
+
+                    </div>
+
+
+                    <div className="user-pill">
+
+                        <div className="avatar">
+                            Y
+                        </div>
+
+                        <span>
+                            Authorized User
+                        </span>
+
+                    </div>
 
                 </div>
 
 
-                <br />
+                <div className="card form-card">
+
+                    <div className="card-header">
+
+                        <h2 className="card-title">
+                            New Evidence Record
+                        </h2>
+
+                        <p className="card-description">
+                            Upload a PDF to generate a cryptographic
+                            hash and register its integrity on-chain.
+                        </p>
+
+                    </div>
 
 
-                {/* PDF */}
+                    <form
+                        onSubmit={handleSubmit}
+                        style={{ padding: "24px 0 0" }}
+                    >
 
-                <div>
+                        <div className="form-group">
 
-                    <label>
-                        Select Forensic PDF
-                    </label>
+                            <label className="form-label">
+                                Case Number
+                            </label>
 
-                    <br />
+                            <input
+                                className="form-input"
+                                type="text"
+                                placeholder="CASE-2026-001"
+                                value={caseNumber}
+                                onChange={(e) =>
+                                    setCaseNumber(
+                                        e.target.value
+                                    )
+                                }
+                            />
 
-                    <input
-                        type="file"
-                        accept=".pdf,application/pdf"
-                        onChange={(e) =>
-                            setFile(
-                                e.target.files[0]
-                            )
-                        }
-                        required
-                    />
+                        </div>
+
+
+                        <div className="form-group">
+
+                            <label className="form-label">
+                                Report Title
+                            </label>
+
+                            <input
+                                className="form-input"
+                                type="text"
+                                placeholder="Forensic Analysis Report"
+                                value={title}
+                                onChange={(e) =>
+                                    setTitle(
+                                        e.target.value
+                                    )
+                                }
+                            />
+
+                        </div>
+
+
+                        <div className="form-group">
+
+                            <label className="form-label">
+                                Forensic PDF
+                            </label>
+
+                            <input
+                                className="file-input"
+                                type="file"
+                                accept=".pdf,application/pdf"
+                                onChange={(e) =>
+                                    setFile(
+                                        e.target.files[0]
+                                    )
+                                }
+                            />
+
+                        </div>
+
+
+                        <button
+                            className="primary-btn"
+                            type="submit"
+                            disabled={loading}
+                        >
+                            {loading
+                                ? "Registering on Blockchain..."
+                                : "Register Report"
+                            }
+                        </button>
+
+                    </form>
+
+
+                    {result && (
+
+                        <div className="verification-result result-authentic">
+
+                            <div className="result-status">
+                                ✓ Report Registered
+                            </div>
+
+                            <p>
+                                <strong>
+                                    Report ID
+                                </strong>
+                            </p>
+
+                            <div className="hash-box">
+                                {result.reportId}
+                            </div>
+
+                            {result.fileHash && (
+
+                                <>
+                                    <p>
+                                        <strong>
+                                            SHA-256 File Hash
+                                        </strong>
+                                    </p>
+
+                                    <div className="hash-box">
+                                        {result.fileHash}
+                                    </div>
+                                </>
+
+                            )}
+
+                            {result.transactionHash && (
+
+                                <>
+                                    <p>
+                                        <strong>
+                                            Blockchain Transaction
+                                        </strong>
+                                    </p>
+
+                                    <div className="hash-box">
+                                        {result.transactionHash}
+                                    </div>
+                                </>
+
+                            )}
+
+                        </div>
+
+                    )}
 
                 </div>
 
-
-                <br />
-
-
-                {/* BUTTON */}
-
-                <button
-                    type="submit"
-                    disabled={loading}
-                >
-
-                    {loading
-                        ? "Registering Report..."
-                        : "Register Report"
-                    }
-
-                </button>
-
-            </form>
-
-
-            {/* RESULT */}
-
-            {result && (
-
-                <div>
-
-                    <h2>
-                        Report Registered Successfully
-                    </h2>
-
-
-                    {result.reportId && (
-
-                        <p>
-                            <strong>
-                                Report ID:
-                            </strong>
-
-                            {" "}
-
-                            {result.reportId}
-                        </p>
-                    )}
-
-
-                    {result.caseNumber && (
-
-                        <p>
-                            <strong>
-                                Case Number:
-                            </strong>
-
-                            {" "}
-
-                            {result.caseNumber}
-                        </p>
-                    )}
-
-
-                    {result.title && (
-
-                        <p>
-                            <strong>
-                                Title:
-                            </strong>
-
-                            {" "}
-
-                            {result.title}
-                        </p>
-                    )}
-
-
-                    {result.fileHash && (
-
-                        <p>
-                            <strong>
-                                File Hash:
-                            </strong>
-
-                            {" "}
-
-                            {result.fileHash}
-                        </p>
-                    )}
-
-
-                    {result.transactionHash && (
-
-                        <p>
-                            <strong>
-                                Blockchain Transaction:
-                            </strong>
-
-                            {" "}
-
-                            {result.transactionHash}
-                        </p>
-                    )}
-
-                </div>
-            )}
+            </main>
 
         </div>
     );

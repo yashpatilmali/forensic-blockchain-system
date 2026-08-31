@@ -6,6 +6,42 @@ const generateReportId = require("../utils/generateReportId");
 const { contract } = require("../config/blockchain");
 
 
+const getReports = async (req, res) => {
+
+    try {
+
+        const reports = await Report.find()
+            .sort({ createdAt: -1 })
+            .select(
+                "reportId caseNumber title fileName createdAt"
+            );
+
+        res.status(200).json({
+
+            count: reports.length,
+
+            reports
+
+        });
+
+    } catch (error) {
+
+        console.error(
+            "GET REPORTS ERROR:",
+            error
+        );
+
+        res.status(500).json({
+
+            message:
+                "Failed to fetch reports"
+
+        });
+
+    }
+};
+
+
 // ======================================================
 // CREATE / REGISTER FORENSIC REPORT
 // ======================================================
@@ -308,8 +344,7 @@ const verifyReport = async (req, res) => {
 // ======================================================
 
 module.exports = {
-
     createReport,
-
-    verifyReport
+    verifyReport,
+    getReports
 };
